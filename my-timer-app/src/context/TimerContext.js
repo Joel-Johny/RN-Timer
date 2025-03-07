@@ -5,6 +5,7 @@ export const TimerContext = createContext();
 
 export function TimerProvider({ children }) {
   const [timers, setTimers] = useState([]);
+  const [categories, setCategories] = useState(["Workout", "Study", "Break"]); // Default categories
 
   // Load timers from AsyncStorage on app startup
   useEffect(() => {
@@ -12,6 +13,11 @@ export function TimerProvider({ children }) {
       const storedTimers = await AsyncStorage.getItem("timers");
       if (storedTimers) {
         setTimers(JSON.parse(storedTimers));
+      }
+
+      const storedCategories = await AsyncStorage.getItem("categories");
+      if (storedCategories) {
+        setCategories(JSON.parse(storedCategories));
       }
     }
     loadTimers();
@@ -21,11 +27,11 @@ export function TimerProvider({ children }) {
   const addTimer = async (newTimer) => {
     const updatedTimers = [...timers, newTimer];
     setTimers(updatedTimers);
-    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers)); // Save to AsyncStorage
+    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
   };
 
   return (
-    <TimerContext.Provider value={{ timers, addTimer }}>
+    <TimerContext.Provider value={{ timers, addTimer, categories }}>
       {children}
     </TimerContext.Provider>
   );

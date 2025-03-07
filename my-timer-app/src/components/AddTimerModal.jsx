@@ -1,7 +1,39 @@
-import React from "react";
-import { View, Text, StyleSheet, Modal, TouchableOpacity } from "react-native";
+import React, { useState, useContext } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Modal,
+  TextInput,
+  TouchableOpacity,
+} from "react-native";
+import { TimerContext } from "../context/TimerContext";
+import RNPickerSelect from "react-native-picker-select"; // Import dropdown
 
 export default function AddTimerModal({ visible, setVisible }) {
+  const { addTimer, categories } = useContext(TimerContext);
+  const [name, setName] = useState("");
+  const [duration, setDuration] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+
+  const handleSubmit = () => {
+    if (!name || !duration || !selectedCategory) return;
+
+    const newTimer = {
+      id: Date.now().toString(),
+      name,
+      duration: parseInt(duration, 10),
+      category: selectedCategory,
+      status: "paused",
+    };
+
+    addTimer(newTimer);
+    setVisible(false);
+    setName("");
+    setDuration("");
+    setSelectedCategory("");
+  };
+
   return (
     <Modal
       animationType="slide"
@@ -12,9 +44,43 @@ export default function AddTimerModal({ visible, setVisible }) {
       <View style={styles.modalContainer}>
         <View style={styles.modalContent}>
           <Text style={styles.modalTitle}>Add New Timer</Text>
-          {/* Form Fields Will Go Here */}
-          <TouchableOpacity onPress={() => setVisible(false)}>
-            <Text style={styles.closeButton}>Close</Text>
+
+          <TextInput
+            style={styles.input}
+            placeholder="Name"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Duration (in seconds)"
+            keyboardType="numeric"
+            value={duration}
+            onChangeText={setDuration}
+          />
+
+          {/* Dropdown for Category Selection */}
+          <View style={styles.pickerWrapper}>
+            <RNPickerSelect
+              onValueChange={(value) => setSelectedCategory(value)}
+              items={categories.map((category) => ({
+                label: category,
+                value: category,
+              }))}
+              style={pickerSelectStyles}
+              placeholder={{ label: "Select a category...", value: null }}
+            />
+          </View>
+
+          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
+            <Text style={styles.buttonText}>Save Timer</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.closeButton}
+            onPress={() => setVisible(false)}
+          >
+            <Text style={styles.buttonText}>Close</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -41,9 +107,61 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 10,
   },
+  pickerWrapper: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  input: {
+    width: "100%",
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 10,
+  },
+  submitButton: {
+    backgroundColor: "blue",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    marginBottom: 10,
+  },
   closeButton: {
-    color: "red",
-    marginTop: 10,
+    backgroundColor: "red",
+    padding: 15,
+    borderRadius: 8,
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+  },
+  buttonText: {
+    color: "white",
     fontSize: 16,
+    textAlign: "center",
   },
 });
+
+// Custom styles for dropdown
+const pickerSelectStyles = {
+  inputIOS: {
+    fontSize: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 8,
+    color: "black",
+    width: "100%",
+  },
+  inputAndroid: {
+    fontSize: 12,
+    borderWidth: 1,
+    borderColor: "gray",
+    borderRadius: 8,
+    color: "black",
+    width: "100%",
+  },
+};
