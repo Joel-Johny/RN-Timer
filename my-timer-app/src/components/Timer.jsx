@@ -41,7 +41,7 @@ export default function Timer({ timer }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [timer.status]);
+  }, [timer.status, timerCompleted]);
 
   // Handle Start
   const handleStart = () => {
