@@ -24,7 +24,9 @@ export default function AddTimerModal({ visible, setVisible }) {
       name,
       duration: parseInt(duration, 10),
       category: selectedCategory,
-      status: "paused",
+      elapsed: 0, // New field to track progress
+      status: "Not yet started", // Default status
+      completionTime: "Pending",
     };
 
     addTimer(newTimer);

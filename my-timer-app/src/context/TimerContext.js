@@ -29,9 +29,51 @@ export function TimerProvider({ children }) {
     setTimers(updatedTimers);
     await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
   };
+  const updateTimer = async (id, updatedFields) => {
+    const updatedTimers = timers.map((timer) =>
+      timer.id === id ? { ...timer, ...updatedFields } : timer
+    );
 
+    setTimers(updatedTimers);
+    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+  };
+
+  // Start Timer: Change status to "Running"
+  const startTimer = async (id) => {
+    updateTimer(id, { status: "Running" });
+  };
+
+  // Pause Timer: Save elapsed time and change status to "Paused"
+  const pauseTimer = async (id, elapsedTime) => {
+    updateTimer(id, { status: "Paused", elapsed: elapsedTime });
+  };
+
+  // Reset Timer: Reset elapsed time to 0 and set status to "Not yet started"
+  const resetTimer = async (id) => {
+    updateTimer(id, {
+      status: "Not yet started",
+      elapsed: 0,
+      completionTime: "Pending",
+    });
+  };
+  const timerCompleted = async (id) => {
+    updateTimer(id, {
+      status: "Completed",
+      completionTime: new Date().toLocaleString(),
+    });
+  };
   return (
-    <TimerContext.Provider value={{ timers, addTimer, categories }}>
+    <TimerContext.Provider
+      value={{
+        timers,
+        addTimer,
+        categories,
+        startTimer,
+        pauseTimer,
+        timerCompleted,
+        resetTimer,
+      }}
+    >
       {children}
     </TimerContext.Provider>
   );
