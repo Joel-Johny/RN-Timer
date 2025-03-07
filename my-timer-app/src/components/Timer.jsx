@@ -41,7 +41,7 @@ export default function Timer({ timer }) {
         clearInterval(intervalRef.current);
       }
     };
-  }, [timer.status, timerCompleted]);
+  }, [timer.status, timer.id, timerCompleted]);
 
   // Handle Start
   const handleStart = () => {
@@ -52,7 +52,9 @@ export default function Timer({ timer }) {
 
   // Handle Pause
   const handlePause = () => {
-    pauseTimer(timer.id, timer.duration - timeRemaining);
+    // Calculate the new total elapsed time
+    const newElapsed = timer.elapsed + (timer.duration - timeRemaining);
+    pauseTimer(timer.id, newElapsed);
   };
 
   // Handle Reset

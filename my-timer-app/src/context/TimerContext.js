@@ -63,6 +63,38 @@ export function TimerProvider({ children }) {
       elapsed: timerDuration,
     });
   };
+  const startAllCategoryTimers = async (category) => {
+    setTimers((prevTimers) => {
+      const updatedTimers = prevTimers.map((timer) =>
+        timer.category === category && timer.status !== "Running"
+          ? { ...timer, status: "Running" }
+          : timer
+      );
+
+      // Update AsyncStorage after timers are updated
+      return updatedTimers;
+    });
+    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+  };
+
+  const resetAllCategoryTimers = async (category) => {
+    setTimers((prevTimers) => {
+      const updatedTimers = prevTimers.map((timer) =>
+        timer.category === category
+          ? { ...timer, status: "Not yet started", elapsed: 0 }
+          : timer
+      );
+
+      // Update AsyncStorage after timers are updated
+      return updatedTimers;
+    });
+    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+  };
+
+  const deleteAllTImers = async () => {
+    setTimers([]);
+    await AsyncStorage.removeItem("timers");
+  };
   return (
     <TimerContext.Provider
       value={{
@@ -73,6 +105,9 @@ export function TimerProvider({ children }) {
         pauseTimer,
         timerCompleted,
         resetTimer,
+        startAllCategoryTimers,
+        resetAllCategoryTimers,
+        deleteAllTImers,
       }}
     >
       {children}

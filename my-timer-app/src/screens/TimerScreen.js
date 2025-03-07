@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { ScrollView, Text, StyleSheet, TouchableOpacity } from "react-native";
 import Categories from "../components/Categories";
 import AddTimerModal from "../components/AddTimerModal"; // Import modal component
-
+import { TimerContext } from "../context/TimerContext";
 export default function TimerScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-
+  const { deleteAllTImers } = useContext(TimerContext);
   return (
     <ScrollView style={styles.container}>
       {/* Add Timer Button */}
@@ -16,6 +16,12 @@ export default function TimerScreen() {
         <Text style={styles.addButtonText}>+ Add Timer</Text>
       </TouchableOpacity>
 
+      <TouchableOpacity
+        style={styles.addButton}
+        onPress={() => deleteAllTImers()}
+      >
+        <Text style={styles.addButtonText}>Delete Timer</Text>
+      </TouchableOpacity>
       {/* Categories Section */}
       <Categories />
 
