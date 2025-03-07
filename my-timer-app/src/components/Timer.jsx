@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from "react";
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import ProgressBar from "react-native-progress/Bar"; // Import Progress Bar
 import { TimerContext } from "../context/TimerContext";
 
 export default function Timer({ timer }) {
@@ -11,19 +12,19 @@ export default function Timer({ timer }) {
   );
   const intervalRef = useRef(null);
 
-  // Effect to update timeRemaining on re-renders
+  // Effect to update timeRemaining
   useEffect(() => {
     setTimeRemaining(timer.duration - timer.elapsed);
   }, [timer]);
 
-  // Effect to handle timer countdown
+  // Effect to handle countdown
   useEffect(() => {
     if (timer.status === "Running") {
       intervalRef.current = setInterval(() => {
         setTimeRemaining((prevTime) => {
           if (prevTime <= 1) {
             clearInterval(intervalRef.current);
-            timerCompleted(timer.id);
+            timerCompleted(timer.id, timer.duration);
             return 0;
           }
           return prevTime - 1;
@@ -71,10 +72,18 @@ export default function Timer({ timer }) {
   return (
     <View style={styles.timerContainer}>
       <Text style={styles.timerName}>{timer.name}</Text>
-      <Text>Task Duration : {formatTime(timer.duration)}</Text>
-      <Text>Time Remaining : {formatTime(timeRemaining)}</Text>
+      <Text>Task Duration: {formatTime(timer.duration)}</Text>
+      <Text>Time Remaining: {formatTime(timeRemaining)}</Text>
       <Text>Status: {timer.status}</Text>
-      {/* <Text>COmpleted: {timer.completionTime}</Text> */}
+
+      {/* Progress Bar */}
+      <ProgressBar
+        progress={1 - timeRemaining / timer.duration}
+        width={null}
+        height={10}
+        color="blue"
+        style={styles.progressBar}
+      />
 
       {/* Timer Controls */}
       <View style={styles.controls}>
@@ -107,6 +116,9 @@ const styles = StyleSheet.create({
   timerName: {
     fontSize: 16,
     fontWeight: "bold",
+  },
+  progressBar: {
+    marginVertical: 10,
   },
   controls: {
     flexDirection: "row",
