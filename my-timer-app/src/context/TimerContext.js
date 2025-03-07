@@ -56,10 +56,11 @@ export function TimerProvider({ children }) {
       completionTime: "Pending",
     });
   };
-  const timerCompleted = async (id) => {
+  const timerCompleted = async (id, timerDuration) => {
     updateTimer(id, {
       status: "Completed",
       completionTime: new Date().toLocaleString(),
+      elapsed: timerDuration,
     });
   };
   return (
