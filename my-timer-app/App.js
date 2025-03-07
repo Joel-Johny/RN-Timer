@@ -1,12 +1,14 @@
 import { StatusBar } from "expo-status-bar";
-import { StyleSheet, Text, View } from "react-native";
 import AppNavigator from "./src/navigation/AppNavigator";
+import { TimerProvider } from "./src/context/TimerContext";
 
 export default function App() {
   return (
     <>
-      <AppNavigator />
-      <StatusBar style="auto" />
+      <TimerProvider>
+        <AppNavigator />
+        <StatusBar style="auto" />
+      </TimerProvider>
     </>
   );
 }
