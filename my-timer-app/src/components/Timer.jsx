@@ -81,7 +81,15 @@ export default function Timer({ timer }) {
         progress={1 - timeRemaining / timer.duration}
         width={null}
         height={10}
-        color="blue"
+        color={
+          timer.status === "Running"
+            ? "blue" // Running → Blue
+            : timer.status === "Paused"
+            ? "orange" // Paused → Orange
+            : timer.status === "Completed"
+            ? "green" // Completed → Green
+            : "red" // Not yet started → Red
+        }
         style={styles.progressBar}
       />
 
