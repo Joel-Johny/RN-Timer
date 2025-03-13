@@ -43,7 +43,8 @@ npx expo start
 
 ### Installing the APK
 
-The compiled APK can be found in the `release` folder of the project. Transfer this file to your Android device and install it.
+The compiled APK can be found in the `release` folder of the project. Transfer this file to your Android device and install it. or you can donwload it from this link
+https://drive.google.com/file/d/1e8DHW_C--JE7WF2uVI7eYgQP2xv3wfgg/view?usp=sharing
 
 ## Project Structure
 
