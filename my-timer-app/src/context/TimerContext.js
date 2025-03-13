@@ -10,32 +10,54 @@ export function TimerProvider({ children }) {
   // Load timers from AsyncStorage on app startup
   useEffect(() => {
     async function loadTimers() {
-      const storedTimers = await AsyncStorage.getItem("timers");
-      if (storedTimers) {
-        setTimers(JSON.parse(storedTimers));
-      }
+      try {
+        const storedTimers = await AsyncStorage.getItem("timers");
+        if (storedTimers) {
+          setTimers(JSON.parse(storedTimers));
+        }
 
-      const storedCategories = await AsyncStorage.getItem("categories");
-      if (storedCategories) {
-        setCategories(JSON.parse(storedCategories));
+        const storedCategories = await AsyncStorage.getItem("categories");
+        if (storedCategories) {
+          setCategories(JSON.parse(storedCategories));
+        }
+      } catch (error) {
+        console.error("Error loading data from AsyncStorage:", error);
       }
     }
     loadTimers();
   }, []);
 
+  // Save timers to AsyncStorage helper function
+  const saveTimers = async (updatedTimers) => {
+    try {
+      await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+    } catch (error) {
+      console.error("Error saving timers to AsyncStorage:", error);
+    }
+  };
+
   // Function to add a new timer
   const addTimer = async (newTimer) => {
-    const updatedTimers = [...timers, newTimer];
-    setTimers(updatedTimers);
-    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+    try {
+      const updatedTimers = [...timers, newTimer];
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    } catch (error) {
+      console.error("Error adding timer:", error);
+    }
   };
-  const updateTimer = async (id, updatedFields) => {
-    const updatedTimers = timers.map((timer) =>
-      timer.id === id ? { ...timer, ...updatedFields } : timer
-    );
 
-    setTimers(updatedTimers);
-    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+  const updateTimer = async (id, updatedFields) => {
+    try {
+      const updatedTimers = timers.map((timer) =>
+        timer.id === id ? { ...timer, ...updatedFields } : timer
+      );
+
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    } catch (error) {
+      console.error("Error updating timer:", error);
+    }
   };
 
   // Start Timer: Change status to "Running"
@@ -44,8 +66,8 @@ export function TimerProvider({ children }) {
   };
 
   // Pause Timer: Save elapsed time and change status to "Paused"
-  const pauseTimer = async (id, elapsedTime) => {
-    updateTimer(id, { status: "Paused", elapsed: elapsedTime });
+  const pauseTimer = async (id) => {
+    updateTimer(id, { status: "Paused" });
   };
 
   // Reset Timer: Reset elapsed time to 0 and set status to "Not yet started"
@@ -56,6 +78,7 @@ export function TimerProvider({ children }) {
       completionTime: "Pending",
     });
   };
+
   const timerCompleted = async (id, timerDuration) => {
     updateTimer(id, {
       status: "Completed",
@@ -63,37 +86,66 @@ export function TimerProvider({ children }) {
       elapsed: timerDuration,
     });
   };
+
   const startAllCategoryTimers = async (category) => {
-    setTimers((prevTimers) => {
-      const updatedTimers = prevTimers.map((timer) =>
-        timer.category === category && timer.status !== "Running"
+    try {
+      const updatedTimers = timers.map((timer) =>
+        timer.category === category &&
+        (timer.status === "Not yet started" || timer.status === "Paused")
           ? { ...timer, status: "Running" }
           : timer
       );
 
-      // Update AsyncStorage after timers are updated
-      return updatedTimers;
-    });
-    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    } catch (error) {
+      console.error("Error starting category timers:", error);
+    }
+  };
+
+  const pauseAllCategoryTimers = async (category) => {
+    try {
+      const updatedTimers = timers.map((timer) => {
+        if (timer.category === category && timer.status === "Running") {
+          return { ...timer, status: "Paused" };
+        }
+        return timer;
+      });
+
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    } catch (error) {
+      console.error("Error pausing category timers:", error);
+    }
   };
 
   const resetAllCategoryTimers = async (category) => {
-    setTimers((prevTimers) => {
-      const updatedTimers = prevTimers.map((timer) =>
+    try {
+      const updatedTimers = timers.map((timer) =>
         timer.category === category
-          ? { ...timer, status: "Not yet started", elapsed: 0 }
+          ? {
+              ...timer,
+              status: "Not yet started",
+              elapsed: 0,
+              completionTime: "Pending",
+            }
           : timer
       );
 
-      // Update AsyncStorage after timers are updated
-      return updatedTimers;
-    });
-    await AsyncStorage.setItem("timers", JSON.stringify(updatedTimers));
+      setTimers(updatedTimers);
+      await saveTimers(updatedTimers);
+    } catch (error) {
+      console.error("Error resetting category timers:", error);
+    }
   };
 
-  const deleteAllTImers = async () => {
-    setTimers([]);
-    await AsyncStorage.removeItem("timers");
+  const deleteAllTimers = async () => {
+    try {
+      setTimers([]);
+      await AsyncStorage.removeItem("timers");
+    } catch (error) {
+      console.error("Error deleting all timers:", error);
+    }
   };
   return (
     <TimerContext.Provider
@@ -107,7 +159,9 @@ export function TimerProvider({ children }) {
         resetTimer,
         startAllCategoryTimers,
         resetAllCategoryTimers,
-        deleteAllTImers,
+        deleteAllTimers,
+        updateTimer,
+        pauseAllCategoryTimers,
       }}
     >
       {children}

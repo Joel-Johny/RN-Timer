@@ -5,7 +5,7 @@ import AddTimerModal from "../components/AddTimerModal"; // Import modal compone
 import { TimerContext } from "../context/TimerContext";
 export default function TimerScreen() {
   const [modalVisible, setModalVisible] = useState(false);
-  const { deleteAllTImers } = useContext(TimerContext);
+  const { deleteAllTimers } = useContext(TimerContext);
   return (
     <ScrollView style={styles.container}>
       {/* Add Timer Button */}
@@ -18,7 +18,7 @@ export default function TimerScreen() {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => deleteAllTImers()}
+        onPress={() => deleteAllTimers()}
       >
         <Text style={styles.addButtonText}>Delete Timer</Text>
       </TouchableOpacity>
